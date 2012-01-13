@@ -50,6 +50,21 @@ class IterTests(NaniTestCase, TwoTranslatedNormalMixin):
         # Make sure .all() only returns unique rows
         with LanguageOverride('en'):
             self.assertEqual(len(Normal.objects.all()), len(Normal.objects.untranslated()))
+    
+    def test_getitem(self):
+        with LanguageOverride('en'):
+            qs  = Normal.objects.using_translations()
+            count = qs.count()
+            listqs = list(qs)
+            self.assertEqual(len(listqs), count)
+    
+    def test_getitem_reversed(self):
+        with LanguageOverride('en'):
+            qs  = Normal.objects.using_translations()
+            listqs = list(qs)
+            count = qs.count()
+            self.assertEqual(len(listqs), count)
+
 
 class UpdateTests(NaniTestCase, TwoTranslatedNormalMixin):
     def test_update_shared(self):

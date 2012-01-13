@@ -238,7 +238,17 @@ class TranslationQueryset(QuerySet):
         Therefore the check for _language_code must be done here.
         """
         if not self._language_code:
-            return self.language().__getitem__(k)
+            """
+            Do NOT call language(). Because language calls filter which calls
+            _filter_or_exclude which calls _clone. __getitem__ should NOT clone
+            the query. Therefore we emulate _filter_or_exclude by adding a Q
+            object to the query of THIS queryset (instead of cloning the
+            queryset, and adding the Q object to the cloned queryset, which is
+            what happens in language()).
+            """
+            #return self.language().__getitem__(k)
+            self._language_code = get_language()
+            self.query.add_q(Q(language_code=self._language_code))
         return super(TranslationQueryset, self).__getitem__(k)
         
     def create(self, **kwargs):
